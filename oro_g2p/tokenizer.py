@@ -70,6 +70,8 @@ def resolve_syllabic_nasal(next_cons: Optional[str]) -> str:
         return "ŋ"
 
 
+APOSTROPHES = {"'", "’", "‘", "`"}
+
 def tokenize_graphemes(text: str) -> list[tuple[str, Optional[str]]]:
     """
     Tokenizes Yoruba text into a list of (grapheme, tone) tuples.
@@ -85,6 +87,22 @@ def tokenize_graphemes(text: str) -> list[tuple[str, Optional[str]]]:
 
     while i < n:
         ch = pieces[i]
+
+        # 0. Clitic Apostrophe Contractions (e.g. n'ílé -> ní ilé, l'ọ́jà -> ní ọjà, k'ó -> kí ó)
+        # When 'n' or 'l' or 'k' or 'b' is immediately followed by an apostrophe + vowel:
+        if ch in ("n", "l", "k", "b", "d", "m") and (i + 1 < n) and pieces[i + 1] in APOSTROPHES:
+            next_after_apos = pieces[i + 2] if (i + 2 < n) else None
+            # If followed by a vowel, it is an elision contraction (e.g. n'ílé, l'ọ́jà, k'ó)
+            if next_after_apos in VOWELS:
+                # Treat 'n'/'l' as consonant onset with smooth vocal transition (strip apostrophe boundary)
+                tokens.append((ch, None))
+                i += 2  # Skip letter + apostrophe
+                continue
+            # If word-initial standalone contraction (e.g. 'n' before space or consonant)
+            elif ch in ("n", "m"):
+                tokens.append((ch, "H"))  # Prepositional clitic defaults to high tone
+                i += 2
+                continue
 
         # 1. Digraph checks: 'gb' and informal 'sh' -> 'ṣ'
         if ch == "g" and (i + 1 < n) and pieces[i + 1] == "b":

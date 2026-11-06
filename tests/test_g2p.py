@@ -73,6 +73,33 @@ def test_keyboard_typo_resilience():
     assert "ʃ" in g2p(typo_text)
 
 
+def test_clitic_contractions():
+    """
+    Verify written apostrophe elisions/contractions (e.g. n'ílé, l'ọ́jà, k'ó).
+    Apostrophes shouldn't break phonetic flow or produce raw punctuation artifacts.
+    """
+    assert g2p("n'ílé") == "nĩˊleˊ"
+    assert g2p("l'ọ́jà") == "lɔˊdʒaˋ"
+    assert g2p("k'ó") == "koˊ"
+
+
+def test_tubosun_paper_benchmark_names():
+    """
+    Benchmark names from Túbọ̀sún et al. (arXiv:2607.18317):
+      - Báńjọ (syllabic nasal ń before j)
+      - Àdùntọ́lá (nasal vowel un before t)
+      - Sànyà (nasal vowel an before y)
+      - Káàárọ̀ & Aláàárẹ̀ (3-vowel sequence contractions)
+      - bọ́ọ̀lù (adapted loanwords with gemination)
+    """
+    assert g2p("Báńjọ") == "baˊnˊdʒɔˉ"
+    assert g2p("Àdùntọ́lá") == "aˋdũˋtɔˊlaˊ"
+    assert g2p("Sànyà") == "sãˋjaˋ"
+    assert g2p("Káàárọ̀") == "kaˊaˋaˊɾɔˋ"
+    assert g2p("Aláàárẹ̀") == "aˉlaˊaˋaˊɾɛˋ"
+    assert g2p("bọ́ọ̀lù") == "bɔˊɔˋluˋ"
+
+
 def test_kokoro_zero_missing_tokens():
     """
     Verify complete 100% token coverage in Kokoro's embedding table

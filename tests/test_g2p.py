@@ -29,11 +29,13 @@ def test_post_nasal_harmony():
     Quirk 1: Vowels immediately following consonant 'm' or 'n'
     must automatically nasalize (ọmọ -> ɔ̃, inú -> ũ, mi -> ĩ).
     """
-    text = "ọmọ inú mi"
+    text = "ọmọ inú mi náà máa"
     phonemes = g2p(text)
-    assert "mɔ̃" in phonemes  # 'ọ' after 'm' becomes nasal 'ɔ̃'
-    assert "nũ" in phonemes  # 'ú' after 'n' becomes nasal 'ũ'
-    assert "mĩ" in phonemes  # 'i' after 'm' becomes nasal 'ĩ'
+    assert "mɔ̃" in phonemes    # 'ọ' after 'm' becomes nasal 'ɔ̃'
+    assert "nũ" in phonemes    # 'ú' after 'n' becomes nasal 'ũ'
+    assert "mĩ" in phonemes    # 'i' after 'm' becomes nasal 'ĩ'
+    assert "nãˊãˋ" in phonemes # Geminate vowel after 'n' nasalizes across both moras
+    assert "mãˊãˉ" in phonemes # Geminate vowel after 'm' nasalizes across both moras
 
 
 def test_chameleon_syllabic_nasal():
@@ -81,6 +83,10 @@ def test_clitic_contractions():
     assert g2p("n'ílé") == "nĩˊleˊ"
     assert g2p("l'ọ́jà") == "lɔˊdʒaˋ"
     assert g2p("k'ó") == "koˊ"
+    assert g2p("t'ó") == "toˊ"
+    assert g2p("s'ọ́dọ̀") == "sɔˊdɔˋ"
+    assert g2p("gb'ọ́rọ̀") == "ɡbɔˊɾɔˋ"
+    assert g2p("nǹkan") == "ŋˉŋˋkãˉ"
 
 
 def test_tubosun_paper_benchmark_names():
@@ -111,8 +117,29 @@ def test_kokoro_zero_missing_tokens():
         "Mo ń bọ̀ ní ìrọ̀lẹ́ òní.",
         "Máalù jẹ koríko lẹ́gbẹ̀ẹ́ igi.",
         "Báwo ni nǹkan? Şé àlàáfíà ni?",
+        "Ọmọ-ọba náà sọ pé t'ó bá wá s'ọ́dọ̀ wa.",
     ]
     for sentence in test_corpus:
         ipa_str, token_ids, missing = yoruba_to_kokoro(sentence)
         assert len(missing) == 0, f"Failed on '{sentence}'! Missing: {missing}"
         assert len(token_ids) > 0
+
+
+def test_official_kokoro_vocab_alignment():
+    """
+    Verify BASE_KOKORO_VOCAB matches official hexgrad/Kokoro-82M config.json token IDs
+    with zero duplicate/overwritten keys.
+    """
+    from oro_g2p.kokoro import BASE_KOKORO_VOCAB, YORUBA_KOKORO_VOCAB
+
+    assert len(BASE_KOKORO_VOCAB) == 114
+    assert len(set(BASE_KOKORO_VOCAB.values())) == 114  # All 114 token IDs are unique
+    assert BASE_KOKORO_VOCAB["s"] == 61
+    assert BASE_KOKORO_VOCAB["w"] == 65
+    assert BASE_KOKORO_VOCAB["x"] == 66
+    assert BASE_KOKORO_VOCAB["ʃ"] == 131
+    assert BASE_KOKORO_VOCAB["ɡ"] == 92
+    assert BASE_KOKORO_VOCAB["ˈ"] == 156
+    assert YORUBA_KOKORO_VOCAB["ˊ"] == 7
+    assert YORUBA_KOKORO_VOCAB["ˉ"] == 8
+    assert YORUBA_KOKORO_VOCAB["ˋ"] == 26

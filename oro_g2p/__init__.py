@@ -7,7 +7,7 @@ from .normalizer import normalize_yoruba
 from .tokenizer import tokenize_graphemes
 from .kokoro import to_kokoro_tokens, YORUBA_KOKORO_VOCAB
 
-__version__ = "0.1.1"
+__version__ = "0.1.2"
 __all__ = [
     "g2p",
     "tokenize_graphemes",

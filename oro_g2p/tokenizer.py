@@ -39,12 +39,19 @@ CONSONANTS = {
 
 def get_next_consonant(pieces: list[str], start_idx: int) -> Optional[str]:
     """
-    Peeks ahead past spaces to determine the next consonant environment
-    for homorganic nasal assimilation.
+    Peeks ahead past spaces and stacked syllabic nasals (e.g. 'nǹkan')
+    to determine the next consonant environment for homorganic nasal assimilation.
     """
     j = start_idx
-    while j < len(pieces) and pieces[j] == " ":
-        j += 1
+    while j < len(pieces):
+        if pieces[j] == " ":
+            j += 1
+            continue
+        # Skip past a stacked syllabic nasal (e.g. first 'n' peeking past 'ǹ' to 'k' in 'nǹkan')
+        if pieces[j] in ("n", "m") and (j + 1 < len(pieces)) and pieces[j + 1] in ALL_TONES:
+            j += 2
+            continue
+        break
     if j < len(pieces):
         if pieces[j] == "g" and (j + 1 < len(pieces)) and pieces[j + 1] == "b":
             return "gb"
@@ -88,33 +95,40 @@ def tokenize_graphemes(text: str) -> list[tuple[str, Optional[str]]]:
     while i < n:
         ch = pieces[i]
 
-        # 0. Clitic Apostrophe Contractions (e.g. n'ílé -> ní ilé, l'ọ́jà -> ní ọjà, k'ó -> kí ó)
-        # When 'n' or 'l' or 'k' or 'b' is immediately followed by an apostrophe + vowel:
-        if ch in ("n", "l", "k", "b", "d", "m") and (i + 1 < n) and pieces[i + 1] in APOSTROPHES:
-            next_after_apos = pieces[i + 2] if (i + 2 < n) else None
-            # If followed by a vowel, it is an elision contraction (e.g. n'ílé, l'ọ́jà, k'ó)
-            if next_after_apos in VOWELS:
-                # Treat 'n'/'l' as consonant onset with smooth vocal transition (strip apostrophe boundary)
-                tokens.append((ch, None))
-                i += 2  # Skip letter + apostrophe
-                continue
-            # If word-initial standalone contraction (e.g. 'n' before space or consonant)
-            elif ch in ("n", "m"):
-                tokens.append((ch, "H"))  # Prepositional clitic defaults to high tone
-                i += 2
-                continue
+        # 0. Standalone or stray apostrophes: skip cleanly so they never pollute IPA tokens
+        if ch in APOSTROPHES:
+            i += 1
+            continue
 
-        # 1. Digraph checks: 'gb' and informal 'sh' -> 'ṣ'
+        # 1. Digraph checks: 'gb' and informal 'sh' -> 'ṣ' (including elision e.g. gb'ọ́rọ̀)
         if ch == "g" and (i + 1 < n) and pieces[i + 1] == "b":
             tokens.append(("gb", None))
             i += 2
+            if i < n and pieces[i] in APOSTROPHES:
+                i += 1
             continue
         if ch == "s" and (i + 1 < n) and pieces[i + 1] == "h":
             tokens.append(("ṣ", None))
             i += 2
+            if i < n and pieces[i] in APOSTROPHES:
+                i += 1
             continue
 
-        # 2. Vowel handling (oral, nasal, contours, and post-nasal harmony)
+        # 2. Clitic Apostrophe Contractions on any consonant (e.g. n'ílé, l'ọ́jà, k'ó, t'ó, s'ọ́dọ̀, f'ọwọ́)
+        if ch in CONSONANTS and (i + 1 < n) and pieces[i + 1] in APOSTROPHES:
+            next_after_apos = pieces[i + 2] if (i + 2 < n) else None
+            # If followed by a vowel, it is an elision contraction
+            if next_after_apos in VOWELS:
+                tokens.append((ch, None))
+                i += 2  # Skip consonant + apostrophe
+                continue
+            # If word-initial standalone nasal contraction (e.g. n' before space or consonant)
+            elif ch in ("n", "m"):
+                tokens.append((ch, "H"))
+                i += 2
+                continue
+
+        # 3. Vowel handling (oral, nasal, contours, and post-nasal harmony)
         if ch in VOWELS:
             vowel = ch
             tones = ["M"]  # Unmarked vowels are canonical Mid tone (Ré)
@@ -152,9 +166,11 @@ def tokenize_graphemes(text: str) -> list[tuple[str, Optional[str]]]:
                     tones = ["H"] if next_1 == HIGH_TONE else ["L"]
                     i += 2
 
-            # Post-nasal harmony: oral vowels immediately following 'm' or 'n' automatically nasalize
-            if tokens and tokens[-1] in {("m", None), ("n", None)} and vowel in {"a", "ẹ", "i", "ọ", "u"}:
-                vowel = NASAL_MAP[vowel]
+            # Post-nasal harmony: oral vowels immediately following 'm'/'n' or a nasalized identical geminate vowel (e.g. náà, máa, míì)
+            if vowel in {"a", "ẹ", "i", "ọ", "u"} and tokens:
+                prev_grapheme = tokens[-1][0]
+                if prev_grapheme in {"m", "n"} or prev_grapheme == NASAL_MAP[vowel]:
+                    vowel = NASAL_MAP[vowel]
 
             for t in tones:
                 tokens.append((vowel, t))

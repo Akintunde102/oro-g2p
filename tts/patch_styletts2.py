@@ -108,7 +108,7 @@ def patch_train_second(sd: str) -> None:
     src = open(p, encoding="utf-8").read()
     changed = False
 
-    if "weights_only=False" not in src:
+    if "weights_only" not in src:
         src = src.replace(
             "import torch\n",
             "import torch\nimport functools\ntorch.load = functools.partial(torch.load, weights_only=False)\n",

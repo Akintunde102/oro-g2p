@@ -9,12 +9,10 @@ It provides out-of-the-box native token mapping for **[Kokoro-82M](https://huggi
 
 ---
 
-## Live Kokoro Yorùbá TTS (v1 Release)
+## Ecosystem
 
-- **Interactive Gradio Demo (Free Google Colab):** [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Akintunde102/oro-g2p/blob/main/tts/Kokoro_Yoruba_Demo.ipynb)
-- **Instant Audio Showcase:** [huggingface.co/spaces/Akintunde102/kokoro-yoruba-demo](https://huggingface.co/spaces/Akintunde102/kokoro-yoruba-demo)
-- **Model Weights (`526 MB`):** [huggingface.co/Akintunde102/kokoro-yoruba-v1](https://huggingface.co/Akintunde102/kokoro-yoruba-v1)
-- **Inference & Universal StyleTTS2/Kokoro Colab Fixes:** [`tts/`](tts/) (`tts_yoruba.py` + `patch_styletts2.py`)
+- **Kokoro Yorùbá TTS (Weights, Inference & Colab Gradio Demo):** [Akintunde102/kokoro-yoruba](https://github.com/Akintunde102/kokoro-yoruba) | [Audio Showcase](https://huggingface.co/spaces/Akintunde102/kokoro-yoruba-demo) | [Model (`526 MB`)](https://huggingface.co/Akintunde102/kokoro-yoruba-v1)
+- **Tonal & Low-Resource Kokoro Starter Kit:** [Akintunde102/kokoro-tonal-kit](https://github.com/Akintunde102/kokoro-tonal-kit) (for Igbo, Twi, Hausa, Vietnamese, etc.)
 
 ---
 

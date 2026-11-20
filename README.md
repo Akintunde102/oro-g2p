@@ -9,6 +9,15 @@ It provides out-of-the-box native token mapping for **[Kokoro-82M](https://huggi
 
 ---
 
+## Live Kokoro Yorùbá TTS (v1 Release)
+
+- **Interactive Gradio Demo (Free Google Colab):** [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Akintunde102/oro-g2p/blob/main/tts/Kokoro_Yoruba_Demo.ipynb)
+- **Instant Audio Showcase:** [huggingface.co/spaces/Akintunde102/kokoro-yoruba-demo](https://huggingface.co/spaces/Akintunde102/kokoro-yoruba-demo)
+- **Model Weights (`526 MB`):** [huggingface.co/Akintunde102/kokoro-yoruba-v1](https://huggingface.co/Akintunde102/kokoro-yoruba-v1)
+- **Inference & Universal StyleTTS2/Kokoro Colab Fixes:** [`tts/`](tts/) (`tts_yoruba.py` + `patch_styletts2.py`)
+
+---
+
 ## Key Features
 
 1. **Deterministic Linguistic Engine:** Pure, rule-based Yoruba phonology — zero hallucinations, reproducible output.
